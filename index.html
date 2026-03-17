@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Quest 🎮 – Fun Learning Game for Kids</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #EEEDFE 0%, #E1F5EE 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    #game {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(127,119,221,0.15);
+      padding: 2rem 1.75rem 2.5rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.4rem;
+      text-align: center;
+      color: #534AB7;
+      margin-bottom: 0.2rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #888;
+      margin-bottom: 1.75rem;
+    }
+
+    .topic-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 2px solid #AFA9EC;
+      background: #fff;
+      color: #534AB7;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .tab:hover { background: #EEEDFE; }
+
+    .tab.active {
+      background: #7F77DD;
+      border-color: #7F77DD;
+      color: #fff;
+    }
+
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.88rem;
+      color: #888;
+    }
+
+    .score-num {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #534AB7;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: #EEEDFE;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7F77DD, #1D9E75);
+      border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+
+    .question-card {
+      background: #FAFAFA;
+      border: 1.5px solid #E8E6F8;
+      border-radius: 18px;
+      padding: 1.75rem 1.5rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .emoji-big {
+      font-size: 3rem;
+      text-align: center;
+      display: block;
+      margin-bottom: 0.75rem;
+      line-height: 1;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #2C2C2A;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .option-btn {
+      padding: 0.8rem 0.7rem;
+      border-radius: 12px;
+      border: 2px solid #D3D1C7;
+      background: #fff;
+      color: #2C2C2A;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      line-height: 1.35;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: #7F77DD;
+      background: #EEEDFE;
+      color: #3C3489;
+    }
+
+    .option-btn.correct {
+      background: #EAF3DE;
+      border-color: #639922;
+      color: #27500A;
+    }
+
+    .option-btn.wrong {
+      background: #FCEBEB;
+      border-color: #A32D2D;
+      color: #501313;
+    }
+
+    .option-btn:disabled { cursor: default; }
+
+    .feedback {
+      margin-top: 1.1rem;
+      padding: 0.9rem 1.1rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+    .feedback.correct-fb { background: #EAF3DE; color: #27500A; }
+    .feedback.wrong-fb { background: #FCEBEB; color: #501313; }
+
+    .next-btn {
+      display: none;
+      margin: 1.1rem auto 0;
+      padding: 0.75rem 2.5rem;
+      border-radius: 24px;
+      border: none;
+      background: #7F77DD;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      transition: background 0.15s;
+    }
+
+    .next-btn.show { display: block; }
+    .next-btn:hover { background: #534AB7; }
+
+    .result-card {
+      background: #FAFAFA;
+      border: 1.5px solid #E8E6F8;
+      border-radius: 18px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    .result-card.show { display: block; }
+
+    .result-emoji { font-size: 4rem; display: block; margin-bottom: 0.6rem; }
+    .result-title { font-family: 'Fredoka One', cursive; font-size: 2rem; color: #534AB7; margin-bottom: 0.5rem; }
+    .result-score { font-size: 1rem; color: #888; margin-bottom: 1.75rem; }
+    .result-score span { font-size: 2.2rem; font-weight: 800; color: #7F77DD; }
+
+    .restart-btn {
+      padding: 0.75rem 2.5rem;
+      border-radius: 24px;
+      border: none;
+      background: #7F77DD;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      transition: background 0.15s;
+    }
+    .restart-btn:hover { background: #534AB7; }
+
+    @media (max-width: 480px) {
+      .options { grid-template-columns: 1fr; }
+      .title { font-size: 1.9rem; }
+      #game { padding: 1.5rem 1.1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="game">
+  <div class="title">🎮 Quiz Quest</div>
+  <div class="subtitle">Choose a topic and test your brain!</div>
+
+  <div class="topic-tabs" id="topic-tabs"></div>
+
+  <div class="score-bar">
+    <div>Question <span id="q-num">1</span> of <span id="q-total">5</span></div>
+    <div>Score: <span class="score-num" id="score-display">0</span></div>
+  </div>
+
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div id="question-area">
+    <div class="question-card" id="question-card">
+      <span class="emoji-big" id="q-emoji"></span>
+      <div class="question-text" id="q-text"></div>
+      <div class="options" id="options-grid"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <span class="result-emoji" id="result-emoji"></span>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-score">You scored <span id="final-score"></span> out of <span id="final-total"></span></div>
+    <button class="restart-btn" onclick="restart()">🔄 Play again!</button>
+  </div>
+</div>
+
+<script>
+const topics = {
+  "🦕 Dinosaurs": [
+    { e:"🦕", q:"Which dinosaur had the longest neck?", opts:["Brachiosaurus","T-Rex","Triceratops","Velociraptor"], a:0, fun:"Brachiosaurus had a neck up to 9 metres long — that's taller than two buses stacked up!" },
+    { e:"🔥", q:"What does the name 'T-Rex' stand for?", opts:["Tyrant Lizard King","Terrible Rex","Tiny Runny Kicker","Tasty Roasted Koala"], a:0, fun:"Tyrannosaurus Rex means 'tyrant lizard king'. Despite the name, scientists think it might have been covered in feathers!" },
+    { e:"🥚", q:"How did most dinosaurs have babies?", opts:["Laid eggs","Born live","Grew from trees","Emerged from volcanoes"], a:0, fun:"All dinosaurs laid eggs, just like birds and reptiles today. Some nests had over 20 eggs!" },
+    { e:"🌍", q:"How long ago did the big asteroid wipe out the dinosaurs?", opts:["66 million years ago","6,000 years ago","1 billion years ago","2 million years ago"], a:0, fun:"A massive space rock hit Earth about 66 million years ago — and that's why you don't see T-Rexes at the supermarket!" },
+    { e:"🐔", q:"Which animal is the closest living relative of dinosaurs?", opts:["Birds","Crocodiles","Lizards","Sharks"], a:0, fun:"Birds are technically dinosaurs! Your pet chicken is basically a tiny feathered dinosaur." }
+  ],
+  "🚀 Space": [
+    { e:"🌙", q:"How long does it take moonlight to reach Earth?", opts:["1.3 seconds","1 minute","10 minutes","1 hour"], a:0, fun:"Light from the Moon reaches you in just 1.3 seconds — much faster than your pizza delivery!" },
+    { e:"🌞", q:"What is the Sun mostly made of?", opts:["Hydrogen","Lava","Fire","Iron"], a:0, fun:"The Sun is a giant ball of hydrogen. Inside, it's so hot that atoms smash together and release huge amounts of energy!" },
+    { e:"🪐", q:"How many Earths could fit inside Jupiter?", opts:["About 1,300","About 10","About 50","About 300"], a:0, fun:"You could fit roughly 1,300 Earths inside Jupiter. It's enormous — and it's made of gas, so there's no ground to stand on!" },
+    { e:"👩‍🚀", q:"Who was the first human to walk on the Moon?", opts:["Neil Armstrong","Buzz Aldrin","Yuri Gagarin","Elon Musk"], a:0, fun:"Neil Armstrong stepped onto the Moon on July 20, 1969 and said his famous line about one small step." },
+    { e:"⭐", q:"What is a shooting star actually made of?", opts:["A piece of rock","A real star","A comet","A satellite"], a:0, fun:"Shooting stars are tiny bits of rock burning up in Earth's atmosphere. Real stars are millions of kilometres away!" }
+  ],
+  "🐙 Ocean": [
+    { e:"🐙", q:"How many hearts does an octopus have?", opts:["3","1","2","5"], a:0, fun:"Octopuses have 3 hearts AND blue blood! Two hearts pump blood to the gills, one pumps it around the body." },
+    { e:"🐳", q:"Which animal makes the loudest sound on Earth?", opts:["Blue whale","Howler monkey","Elephant","Lion"], a:0, fun:"Blue whale calls can be heard up to 800km away — louder than a jet engine. They're the biggest AND loudest animals!" },
+    { e:"🦈", q:"How many teeth can a shark grow in a lifetime?", opts:["Up to 50,000","About 200","Just 32 like humans","Around 5,000"], a:0, fun:"Sharks never run out of teeth! They can grow up to 50,000 teeth in a lifetime. Dentists would love them." },
+    { e:"🐠", q:"What covers most of Earth's surface?", opts:["Ocean","Land","Ice","Deserts"], a:0, fun:"Oceans cover about 71% of Earth. We've actually explored less of the ocean than we have the surface of Mars!" },
+    { e:"🪸", q:"What is a coral reef made of?", opts:["Tiny living animals","Coloured rocks","Plants","Sand"], a:0, fun:"Coral reefs are built by tiny animals called polyps. The Great Barrier Reef is so big it can be seen from space!" }
+  ],
+  "😂 Silly Science": [
+    { e:"🐝", q:"What is honey actually made from?", opts:["Bee vomit (sort of!)","Bee tears","Pollen alone","Tree sap"], a:0, fun:"Bees swallow nectar and bring it back up over and over to make honey. It sounds gross but it tastes amazing!" },
+    { e:"👅", q:"What is the most flexible muscle in the human body?", opts:["The tongue","The heart","The jaw","The bicep"], a:0, fun:"Your tongue is the most flexible muscle in your body — and it's the only muscle attached at only one end!" },
+    { e:"😴", q:"What happens to your eyes during deep dream sleep?", opts:["They move very quickly","They stay totally still","They open slightly","They spin in circles"], a:0, fun:"During REM sleep your eyes dart around super fast — scientists think this happens while you're dreaming!" },
+    { e:"🤧", q:"How fast does a sneeze travel?", opts:["160 km/h","5 km/h","50 km/h","1,000 km/h"], a:0, fun:"A sneeze blasts out at around 160km/h — faster than most motorway speed limits. Always cover your mouth!" },
+    { e:"🦴", q:"Do babies have more or fewer bones than adults?", opts:["More bones","Fewer bones","The same amount","Exactly double"], a:0, fun:"Babies are born with about 270-300 bones! Many fuse together as you grow, so adults end up with 206." }
+  ]
+};
+
+let currentTopic = Object.keys(topics)[0];
+let questions = [];
+let qIndex = 0;
+let score = 0;
+let answered = false;
+
+function buildTabs() {
+  const container = document.getElementById('topic-tabs');
+  container.innerHTML = '';
+  Object.keys(topics).forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (t === currentTopic ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => { currentTopic = t; restart(); };
+    container.appendChild(btn);
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[qIndex];
+  document.getElementById('q-emoji').textContent = q.e;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-num').textContent = qIndex + 1;
+  document.getElementById('q-total').textContent = questions.length;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+  document.getElementById('next-btn').className = 'next-btn';
+
+  const pct = (qIndex / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function selectAnswer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIndex];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  if (i === q.a) {
+    score++;
+    btns[i].classList.add('correct');
+    fb.className = 'feedback correct-fb show';
+    fb.textContent = '✅ Correct! ' + q.fun;
+    document.getElementById('score-display').textContent = score;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.a].classList.add('correct');
+    fb.className = 'feedback wrong-fb show';
+    fb.textContent = '❌ Not quite! ' + q.fun;
+  }
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    showResult();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('question-area').style.display = 'none';
+  document.getElementById('next-btn').className = 'next-btn';
+  const rc = document.getElementById('result-card');
+  rc.className = 'result-card show';
+
+  const pct = score / questions.length;
+  let emoji, title;
+  if (pct === 1)      { emoji = '🏆'; title = 'Perfect score!'; }
+  else if (pct >= 0.7){ emoji = '🌟'; title = 'Amazing work!'; }
+  else if (pct >= 0.4){ emoji = '👍'; title = 'Good effort!'; }
+  else                { emoji = '🤔'; title = 'Keep learning!'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-total').textContent = questions.length;
+  document.getElementById('progress-fill').style.width = '100%';
+}
+
+function restart() {
+  qIndex = 0; score = 0; answered = false;
+  document.getElementById('score-display').textContent = 0;
+  questions = shuffle(topics[currentTopic]);
+  document.getElementById('result-card').className = 'result-card';
+  document.getElementById('question-area').style.display = 'block';
+  buildTabs();
+  loadQuestion();
+}
+
+buildTabs();
+questions = shuffle(topics[currentTopic]);
+loadQuestion();
+</script>
+</body>
+</html>
